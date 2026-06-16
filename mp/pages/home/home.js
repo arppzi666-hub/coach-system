@@ -1,4 +1,4 @@
-var API = "http://192.168.1.110:3000/api";
+var API = "https://coach-system-seven.vercel.app/api";
 
 function today() { var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
 function diffDays(d1, d2) { return Math.floor((new Date(d2 || today()) - new Date(d1)) / 86400000); }
