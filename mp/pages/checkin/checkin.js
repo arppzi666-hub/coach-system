@@ -1,4 +1,4 @@
-var API = "http://localhost:3000/api";
+var API = "http://192.168.1.110:3000/api";
 
 function today() { var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
 

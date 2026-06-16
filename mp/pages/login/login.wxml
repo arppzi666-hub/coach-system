@@ -1,7 +1,7 @@
 <view class="login-page">
-  <view class="login-logo">我的健身课程</view>
+  <view class="login-logo">🏋️ 我的健身课程</view>
   <view class="login-sub">输入手机号登录查看课程</view>
-  <input class="form-input" type="text" placeholder="手机号" value="{{phone}}" bindinput="onPhoneInput" maxlength="11"/>
+  <input class="form-input" type="number" placeholder="请输入11位手机号" value="{{phone}}" bindinput="onPhoneInput" focus="{{true}}" confirm-type="done" />
   <button class="login-btn" bindtap="doLogin">登录</button>
   <view class="admin-link" bindtap="doAdmin">教练入口</view>
 </view>

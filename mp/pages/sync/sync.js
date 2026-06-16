@@ -1,4 +1,4 @@
-var SERVER_URL = "http://localhost:3000/api";
+var SERVER_URL = "http://192.168.1.110:3000/api";
 
 Page({
   data: { text: "", msg: "", status: "就绪", log: "" },
@@ -182,7 +182,7 @@ Page({
         ciPromise = ciPromise.then(function() {
           return new Promise(function(resolve) {
             wx.request({
-              url: "http://localhost:3000/api/checkins",
+              url: "http://192.168.1.110:3000/api/checkins",
               method: "POST",
               data: { studentId: ci.studentId, courseId: ci.courseId, courseType: ci.courseType, checkinDate: ci.checkinDate, checkinTime: ci.checkinTime, createTime: ci.createTime },
               header: { "content-type": "application/json" },
@@ -199,7 +199,7 @@ Page({
           pPromise = pPromise.then(function() {
             return new Promise(function(resolve) {
               wx.request({
-                url: "http://localhost:3000/api/pauses",
+                url: "http://192.168.1.110:3000/api/pauses",
                 method: "POST",
                 data: { studentId: p.studentId, courseId: p.courseId, courseType: p.courseType, pauseDate: p.pauseDate, reason: p.reason||"", status: p.status, type: p.type, createTime: p.createTime },
                 header: { "content-type": "application/json" },

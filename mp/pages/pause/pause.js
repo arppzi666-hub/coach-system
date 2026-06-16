@@ -1,4 +1,4 @@
-var API = "http://localhost:3000/api";
+var API = "http://192.168.1.110:3000/api";
 
 function today() { var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
 
@@ -15,7 +15,7 @@ Page({
       wx.request({ url: API + "/pauses?studentId=" + s.id, method: "GET", success: function(r) { resolve(r.data || []); }, fail: reject });
     });
     Promise.all([p1, p2]).then(function(results) {
-      var courses = results[0].filter(function(c) { return c.status === "active"; });
+      var courses = results[0]; // 不限制status，签到后也能请假
       var pauses = results[1];
       var mc = courses.map(function(c) {
         var isMonthly = c.type === "monthly";
