@@ -12,7 +12,7 @@ async function getStore() {
   try {
     var mod = await import("@upstash/redis");
     var Redis = mod.Redis;
-    var redis = new Redis({
+    var redis = new Redis({connectTimeout: 5000,retry:{retries:0},
       url: process.env.UPSTASH_REDIS_URL || process.env.KV_URL || "",
       token: process.env.UPSTASH_REDIS_TOKEN || process.env.KV_REST_API_TOKEN || ""
     });
