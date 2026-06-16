@@ -1,0 +1,28 @@
+.home-page{min-height:100vh;background:#f5f6f8;padding-bottom:160rpx}
+.home-header{background:linear-gradient(135deg,#FF6B35,#FF8C5A);padding:80rpx 40rpx 40rpx;color:#fff}
+.header-greeting{font-size:40rpx;font-weight:700}
+.header-phone{font-size:26rpx;opacity:.8;margin-top:8rpx}
+.empty-state{display:flex;flex-direction:column;align-items:center;padding:100rpx 0;color:#999}
+.empty-icon{font-size:80rpx;margin-bottom:20rpx}
+.text-sm{font-size:24rpx;color:#999;margin-top:10rpx}
+.course-card{background:#fff;border-radius:16rpx;padding:28rpx;margin:20rpx;box-shadow:0 2rpx 12rpx rgba(0,0,0,.04)}
+.card-top{margin-bottom:16rpx}
+.flex-center{display:flex;align-items:center}
+.tag{display:inline-block;padding:4rpx 16rpx;border-radius:6rpx;font-size:22rpx;font-weight:500;margin-right:8rpx}
+.tag-monthly{background:#fff0e8;color:#FF6B35}
+.tag-session{background:#e8f4ff;color:#3b82f6}
+.tag-active{background:#e8ffe8;color:#07c160}
+.tag-paused{background:#fff8e8;color:#e6a817}
+.tag-expired{background:#ffe8e8;color:#fa5151}
+.progress-bar{height:8rpx;background:#f0f0f0;border-radius:4rpx;overflow:hidden;margin:12rpx 0}
+.progress-fill{height:100%;background:linear-gradient(90deg,#FF6B35,#FF8C5A);border-radius:4rpx;transition:width .3s}
+.card-info{display:flex;justify-content:space-between;align-items:center;margin-top:16rpx}
+.info-num{font-size:44rpx;font-weight:700;color:#FF6B35}
+.info-unit{font-size:24rpx;color:#666;margin-left:4rpx}
+.info-right{font-size:24rpx;color:#999}
+.card-date{font-size:22rpx;color:#bbb;margin-top:8rpx}
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;padding:16rpx 20rpx;border-top:1rpx solid #ebebeb;gap:12rpx}
+.bar-btn{flex:1;text-align:center;padding:14rpx 0;font-size:24rpx;color:#FF6B35;background:#fff0e8;border-radius:12rpx;display:flex;flex-direction:column;align-items:center;gap:6rpx}
+.bar-icon{font-size:36rpx}
+.bottom-bar{z-index:999;box-shadow:0 -2rpx 12rpx rgba(0,0,0,.06)}
+.bar-text{font-size:22rpx;font-weight:500}

@@ -1,0 +1,11 @@
+node_modules/
+data.json
+*.bak
+server.js.bak
+_check.js
+_debug.html
+_gen.py
+_build_admin.js
+_tmp.txt
+.DS_Store
+Thumbs.db

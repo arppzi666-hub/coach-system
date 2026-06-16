@@ -1,0 +1,12 @@
+{
+  "appid": "wx3c83c3c8cf4bf95e",
+  "projectname": "coach",
+  "compileType": "miniprogram",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "postcss": true,
+    "minified": false
+  }
+}

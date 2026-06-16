@@ -1,0 +1,17 @@
+{
+  "name": "coach-system",
+  "version": "1.0.0",
+  "description": "``` coach-system/ ├── admin/                    # 管理员网站后台（教练用） │   └── index.html            # 双击打开即可使用 ├── mp/                       # 微信小程序（学员用） │   ├── project.config.json   # 导入微信开发者工具 │   ├── app.js/json/wxss │   ├── pages/ │   │   ├── login/            # 学员手机号登录 │   │   ├── home/             # 查看我的课程卡片（天数/次数） │   │   ├── checkin/          # 打卡签到 │   │   ├── pause/            # 申请请假（每月<=2次） │   │   └── history/          # 签到记录 │   └── utils/ │       ├── date.js           # 日期工具 │       └── store.js          # 数据存储 └── cloudfunctions/           # 云函数（可选，升级云开发后使用）     ├── adminApi/             # 管理员 API     └── studentApi/           # 学员 API ```",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@cloudbase/node-sdk": "^3.18.1"
+  }
+}

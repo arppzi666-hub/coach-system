@@ -1,0 +1,33 @@
+<view class="page-checkin">
+  <view class="card">
+    <view class="card-title">打卡签到</view>
+    
+    <block wx:if="{{activeCourses.length===0}}">
+      <view class="empty-state">
+        <view class="empty-icon">📭</view>
+        <view>没有可签到的课程</view>
+        <view class="text-sm">今日已全部签到或无活跃课程</view>
+      </view>
+    </block>
+    
+    <block wx:else>
+      <view class="course-item {{item.selClass}}" wx:for="{{activeCourses}}" wx:key="id" bindtap="selectCourse" data-id="{{item.id}}">
+        <view>
+          <view class="course-name">{{item.label}}</view>
+          <view class="course-meta">剩余 {{item.remaining}} {{item.unit}}</view>
+        </view>
+        <view class="check-circle {{item.selClass}}">{{item.selected ? "✓" : "○"}}</view>
+      </view>
+      
+      <button class="btn-do" bindtap="doCheckin">确认签到</button>
+    </block>
+  </view>
+  
+  <view class="card" wx:if="{{recentCheckins.length>0}}">
+    <view class="card-title">最近签到</view>
+    <view class="ci-item" wx:for="{{recentCheckins}}" wx:key="id">
+      <view class="ci-date">{{item.checkinDate}} {{item.checkinTime}}</view>
+      <view class="ci-type">{{item.courseLabel}}</view>
+    </view>
+  </view>
+</view>

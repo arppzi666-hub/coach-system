@@ -1,0 +1,1 @@
+{"permissions":{"openapi":[]},"triggers":[{"name":"http","type":"http","config":{"path":"/","method":["POST"]}}]}

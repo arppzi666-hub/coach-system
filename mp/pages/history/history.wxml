@@ -1,0 +1,27 @@
+<view class="page">
+  <view class="card">
+    <view class="card-title">签到记录</view>
+    
+    <block wx:if="{{checkins.length===0}}">
+      <view class="empty-state">
+        <view class="empty-icon">📭</view>
+        <view>暂无签到记录</view>
+      </view>
+    </block>
+    
+    <block wx:else>
+      <view class="history-item" wx:for="{{checkins}}" wx:key="id">
+        <view class="item-row">
+          <view class="hi-left">
+            <view class="hi-index">{{index+1}}</view>
+            <view>
+              <view class="hi-course">{{item.courseName}}</view>
+              <view class="hi-time">{{item.checkinDate}} {{item.checkinTime}}</view>
+            </view>
+          </view>
+          <view class="tag tag-{{item.tagClass}}">{{item.tagText}}</view>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

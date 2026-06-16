@@ -1,0 +1,21 @@
+<!DOCTYPE html><html><body>
+<button onclick="testClick()">Test</button>
+<div id="out"></div>
+<script>
+// Test var vs let in in-app browser
+try {
+  var testVar = 'var works';
+} catch(e) {
+  document.getElementById('out').textContent = 'var error: ' + e.message;
+}
+
+let testLet = 'let works';
+
+function testClick() {
+  document.getElementById('out').textContent = 'Clicked! testVar=' + typeof testVar + ' testLet=' + typeof testLet;
+}
+
+// Check window
+document.getElementById('out').textContent = 'var=' + typeof testVar + ' let=' + typeof testLet + ' window.testVar=' + (typeof window.testVar) + ' window.testClick=' + (typeof window.testClick);
+</script>
+</body></html>

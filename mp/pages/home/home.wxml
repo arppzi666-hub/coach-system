@@ -1,0 +1,62 @@
+<view class="home-page">
+  <view class="home-header">
+    <view class="header-greeting">{{student.name}}，你好</view>
+    <view class="header-phone">{{student.phone}}</view>
+  </view>
+  
+  <block wx:if="{{courses.length===0}}">
+    <view class="empty-state">
+      <view class="empty-icon">📭</view>
+      <view>还没有课程记录</view>
+      <view class="text-sm">请教练在后台开卡后，到数据同步页同步</view>
+    </view>
+  </block>
+  
+  <block wx:else>
+    <view class="course-card" wx:for="{{courses}}" wx:key="id">
+      <view class="card-top">
+        <view class="tag tag-{{item.tagClass}}">{{item.tagLabel}}</view>
+        <view class="tag tag-{{item.statusClass}}">{{item.statusLabel}}</view>
+      </view>
+      
+      <block wx:if="{{item.isMonthly}}">
+        <view class="progress-bar">
+          <view class="progress-fill" style="width:{{item.progress}}%"></view>
+        </view>
+        <view class="card-info">
+          <view class="info-left">
+            <text class="info-num">{{item.remaining}}</text>
+            <text class="info-unit">天剩余</text>
+          </view>
+          <view class="info-right">共{{item.totalDays}}天</view>
+        </view>
+        <view class="card-date">{{item.dateRange}}</view>
+      </block>
+      
+      <block wx:else>
+        <view class="card-info">
+          <view class="info-left">
+            <text class="info-num">{{item.remaining}}</text>
+            <text class="info-unit">次剩余</text>
+          </view>
+          <view class="info-right">共{{item.totalSessions}}次</view>
+        </view>
+      </block>
+    </view>
+
+    <view class="bottom-bar">
+      <view class="bar-btn" bindtap="goCheckin">
+        <view class="bar-icon">✅</view>
+        <view class="bar-text">打卡签到</view>
+      </view>
+      <view class="bar-btn" bindtap="goPause">
+        <view class="bar-icon">⏸</view>
+        <view class="bar-text">申请请假</view>
+      </view>
+      <view class="bar-btn" bindtap="goHistory">
+        <view class="bar-icon">📋</view>
+        <view class="bar-text">签到记录</view>
+      </view>
+    </view>
+  </block>
+</view>

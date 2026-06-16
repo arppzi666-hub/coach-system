@@ -1,0 +1,55 @@
+<view class="page">
+  <view class="card">
+    <view class="card-title">课程暂停</view>
+    <view class="card-tip">月卡每月最多2次。次卡可暂停1次。暂停期间不消耗。</view>
+    
+    <block wx:if="{{courses.length===0}}">
+      <view class="empty-state">
+        <view class="empty-icon">📭</view>
+        <view>没有可暂停的课程</view>
+      </view>
+    </block>
+    
+    <block wx:else>
+      <view class="course-list">
+        <view class="course-item {{item.selClass}}" wx:for="{{courses}}" wx:key="id" bindtap="selectCourse" data-id="{{item.id}}" data-type="{{item.isMonthly?'monthly':'session'}}">
+          <view>
+            <view class="course-name">{{item.label}}</view>
+            <view class="course-meta">{{item.limit}}</view>
+          </view>
+          <view class="check-circle {{item.selClass}}">{{item.selected ? "✓" : "○"}}</view>
+        </view>
+      </view>
+      
+      <block wx:if="{{selectedCourseId}}">
+        <view class="form-gap">
+          <view class="form-item">
+            <view class="form-label">暂停日期</view>
+            <picker mode="date" value="{{pauseDate}}" bindchange="onDateChange">
+              <view class="form-value">{{pauseDate}} ▼</view>
+            </picker>
+          </view>
+          <view class="form-item">
+            <view class="form-label">原因(可选)</view>
+            <input class="form-input" placeholder="有事外出" value="{{reason}}" bindinput="onReasonInput"/>
+          </view>
+          <button class="primary-btn" bindtap="doPause">确认暂停</button>
+        </view>
+      </block>
+    </block>
+  </view>
+  
+  <view class="card" wx:if="{{pauses.length>0}}">
+    <view class="card-title">暂停记录</view>
+    <view class="list-item" wx:for="{{pauses}}" wx:key="id">
+      <view class="item-row">
+        <view>
+          <text class="item-date">{{item.pauseDate}}</text>
+          <text class="item-type">{{item.label}}</text>
+        </view>
+        <view class="tag tag-{{item.statusClass}}">{{item.statusLabel}}</view>
+      </view>
+      <view class="item-reason" wx:if="{{item.reason}}">原因：{{item.reason}}</view>
+    </view>
+  </view>
+</view>

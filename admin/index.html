@@ -1,0 +1,154 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>Coach Admin</title><link rel="stylesheet" href="style.css"></head><body><div class="top"><h1>Coach Admin</h1><button onclick="rf()">Refresh</button></div><div class="tabs"><div class="tab active" onclick="go(0)">Dashboard</div><div class="tab" onclick="go(1)">Students</div><div class="tab" onclick="go(2)">Courses</div><div class="tab" onclick="go(3)">Check-ins</div><div class="tab" onclick="go(4)">Pauses</div></div><div class="main" id="m"></div><div class="modal-mask" id="mm" onclick="if(event.target===this)cm()"><div class="modal" id="mc"></div></div><div class="toast" id="tx"></div><script>
+let API='http://localhost:3000/api',T=0,D={s:[],c:[],k:[],p:[]};
+let  = function(s){if(!s)return'';s=''+s;return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+let  = function(d){if(!d)return'-';let t=new Date(d);return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');}
+let  = function(id){return D.s.find(function(s){return s.id===id||s.phone===id})||{name:'?',phone:'?'};}
+let  = function(m){let t=document.getElementById('tx');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2000);}
+async function ld(){
+try{let s=await(await fetch(API+'/students')).json();if(Array.isArray(s))D.s=s;}catch(e){}
+try{let c=await(await fetch(API+'/courses')).json();if(Array.isArray(c))D.c=c;}catch(e){}
+try{let k=await(await fetch(API+'/checkins')).json();if(Array.isArray(k))D.k=k;}catch(e){}
+try{let p=await(await fetch(API+'/pauses')).json();if(Array.isArray(p))D.p=p;}catch(e){}
+}
+async function rf(){await ld();rr();tx('Refreshed');}
+let  = function(){document.getElementById('mm').style.display='none';}
+let  = function(t,b,cb){
+document.getElementById('mm').style.display='flex';
+document.getElementById('mc').innerHTML='<h3>'+t+'</h3>'+b+'<div style=margin-top:20px;display:flex;gap:10px;justify-content:flex-end><button class=btn bo onclick=cm()>Cancel</button><button class=btn bp id=mok>OK</button></div>';
+if(cb)document.getElementById('mok').onclick=function(){cb();cm();};
+}
+let  = function(n){T=n;let ts=document.querySelectorAll('.tab');for(let i=0;i<ts.length;i++)ts[i].classList.toggle('active',i===n);rr();}
+let  = function(){if(T===0)r0();else if(T===1)r1();else if(T===2)r2();else if(T===3)r3();else r4();}
+let  = function(){
+let m=document.getElementById('m');
+let ac=D.c.filter(function(c){return c.status==='active'});
+let mc=ac.filter(function(c){return c.type==='monthly'}).length;
+let sc=ac.filter(function(c){return c.type==='session'}).length;
+let rev=D.c.reduce(function(t,c){return t+(c.price||0)},0);
+let td=new Date().toISOString().slice(0,10);
+let tc=D.k.filter(function(k){return (k.date||k.checkinDate)===td}).length;
+let ps=D.p.filter(function(p){return p.status==='active'}).length;
+let h='<div class=stats>';
+h+='<div class=stat><div class=n>'+D.s.length+'</div><div class=l>Students</div></div>';
+h+='<div class=stat><div class=n>$'+rev+'</div><div class=l>Revenue</div></div>';
+h+='<div class=stat><div class=n>'+mc+'/'+sc+'</div><div class=l>Monthly/Session</div></div>';
+h+='<div class=stat><div class=n>'+tc+'</div><div class=l>Today</div></div>';
+h+='<div class=stat><div class=n>'+ps+'</div><div class=l>Paused</div></div>';
+h+='</div><div class=card><h3>Students</h3>';
+if(D.s.length===0)h+='<div class=empty>No students</div>';
+else{h+='<table><tr><th>Name</th><th>Phone</th><th>Courses</th></tr>';
+D.s.forEach(function(s){let n=D.c.filter(function(c){return c.studentId===s.id}).length;
+h+='<tr><td><b>'+E(s.name)+'</b></td><td>'+E(s.phone)+'</td><td>'+n+'</td></tr>';});
+h+='</table>';}
+h+='</div>';
+let rc=D.k.slice().sort(function(a,b){return (b.createTime||b.date||'').localeCompare(a.createTime||a.date||'')}).slice(0,10);
+h+='<div class=card><h3>Recent</h3>';
+if(rc.length===0)h+='<div class=empty>None</div>';
+else{h+='<table><tr><th>Student</th><th>Date</th><th>Type</th></tr>';
+rc.forEach(function(k){let s=gs(k.studentId);
+h+='<tr><td><b>'+E(s.name)+'</b></td><td>'+fd(k.date||k.checkinDate)+'</td><td><span class=tag '+(k.type==='session'||k.courseType==='session'?'ts':'tm')+'>'+(k.type==='session'||k.courseType==='session'?'Session':'Monthly')+'</span></td></tr>';});
+h+='</table>';}
+h+='</div>';m.innerHTML=h;}
+let  = function(){
+let m=document.getElementById('m');
+let h='<div class=card><h3>Students <button class=btn bp onclick=as()>+ Add</button></h3>';
+if(D.s.length===0)h+='<div class=empty>None</div>';
+else{h+='<table><tr><th>Name</th><th>Phone</th><th>Note</th><th>Courses</th><th></th></tr>';
+D.s.forEach(function(s){let n=D.c.filter(function(c){return c.studentId===s.id}).length;
+h+='<tr><td><b>'+E(s.name)+'</b></td><td>'+E(s.phone)+'</td><td>'+E(s.note||'-')+'</td><td>'+n+'</td>';
+h+='<td><button class=btn bo bs onclick="es(\''+s.id+'\')">Edit</button> <button class=btn bd bs onclick="ds(\''+s.id+'\')">Del</button></td></tr>';});
+h+='</table>';}
+h+='</div>';m.innerHTML=h;}
+async function as(){
+om('Add Student','<div class=fg><label>Name *</label><input id=sn></div><div class=fg><label>Phone *</label><input id=sp></div><div class=fg><label>Note</label><input id=st></div>',async function(){
+let n=document.getElementById('sn').value.trim(),p=document.getElementById('sp').value.trim();
+if(!n||!p){tx('Name and phone required');return;}
+let r=await fetch(API+'/students',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,phone:p,note:document.getElementById('st').value.trim()})});
+if(r.ok){await ld();rr();tx('Added');}else{tx('Failed');}
+});}
+let  = function(id){let s=D.s.find(function(x){return x.id===id});if(!s)return;
+om('Edit Student','<div class=fg><label>Name</label><input id=sn value="'+E(s.name)+'"></div><div class=fg><label>Phone</label><input id=sp value="'+E(s.phone)+'"></div><div class=fg><label>Note</label><input id=st value="'+E(s.note||'')+'"></div>',async function(){
+let n=document.getElementById('sn').value.trim(),p=document.getElementById('sp').value.trim();
+if(!n||!p){tx('Required');return;}
+let r=await fetch(API+'/students/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,phone:p,note:document.getElementById('st').value.trim()})});
+if(r.ok){await ld();rr();tx('Updated');}else{tx('Failed');}
+});}
+async function ds(id){if(!confirm('Delete?'))return;
+let r=await fetch(API+'/students/'+id,{method:'DELETE'});
+if(r.ok){
+D.c.filter(function(c){return c.studentId===id}).forEach(function(c){fetch(API+'/courses/'+c.id,{method:'DELETE'})});
+D.k.filter(function(k){return k.studentId===id}).forEach(function(k){fetch(API+'/checkins/'+k.id,{method:'DELETE'})});
+D.p.filter(function(p){return p.studentId===id}).forEach(function(p){fetch(API+'/pauses/'+p.id,{method:'DELETE'})});
+await ld();rr();tx('Deleted');}else{tx('Failed');}}
+let  = function(){
+let m=document.getElementById('m');
+let h='<div class=card><h3>Courses <button class=btn bp onclick=ac()>+ New Card</button></h3>';
+if(D.c.length===0)h+='<div class=empty>None</div>';
+else{h+='<table><tr><th>Student</th><th>Type</th><th>Status</th><th>Info</th><th>Start</th><th>Price</th><th></th></tr>';
+D.c.forEach(function(c){let s=gs(c.studentId);
+let st=c.status==='active'?'ta':c.status==='paused'?'tp':'te';
+let sl=c.status==='active'?'Active':c.status==='paused'?'Paused':'Expired';
+let info=c.type==='monthly'?(c.totalDays||30)+'d':(c.rem!==undefined?c.rem:c.total||10)+'/'+(c.total||10);
+h+='<tr><td><b>'+E(s.name)+'</b></td><td><span class=tag '+(c.type==='monthly'?'tm':'ts')+'>'+(c.type==='monthly'?'Monthly':'Session')+'</span></td>';
+h+='<td><span class=tag '+st+'>'+sl+'</span></td><td>'+info+'</td><td>'+fd(c.startDate||c.start)+'</td><td>$'+(c.price||0)+'</td>';
+h+='<td><button class=btn bo bs onclick="ec(\''+c.id+'\')">Edit</button> <button class=btn bd bs onclick="dc(\''+c.id+'\')">Del</button></td></tr>';});
+h+='</table>';}
+h+='</div>';m.innerHTML=h;}
+async function ac(){
+let opts=D.s.map(function(s){return '<option value="'+s.id+'">'+E(s.name)+' ('+E(s.phone)+')</option>'}).join('');
+om('New Card','<div class=fg><label>Student</label><select id=cs>'+opts+'</select></div><div class=fg><label>Type</label><select id=ct onchange=tc()><option value=monthly>Monthly</option><option value=session>Session</option></select></div><div class=fg><label>Start</label><input id=cdr type=date value="'+new Date().toISOString().slice(0,10)+'"></div><div id=cgm class=fg><label>Days</label><input id=cdy type=number value=30></div><div id=cgs class=fg style=display:none><label>Sessions</label><input id=csn type=number value=10></div><div class=fg><label>Price</label><input id=cp type=number value=0></div>',async function(){
+let sid=document.getElementById('cs').value,type=document.getElementById('ct').value;
+if(!sid){tx('Select student');return;}
+let d={studentId:sid,type:type,status:'active',price:Number(document.getElementById('cp').value)||0,startDate:document.getElementById('cdr').value};
+if(type==='monthly'){let days=Number(document.getElementById('cdy').value)||30;d.totalDays=days;let end=new Date(d.startDate);end.setDate(end.getDate()+days);d.endDate=end.toISOString().slice(0,10);}
+else{let total=Number(document.getElementById('csn').value)||10;d.total=total;d.rem=total;}
+let r=await fetch(API+'/courses',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
+if(r.ok){await ld();rr();tx('Created');}else{tx('Failed');}
+});}
+let  = function(){let t=document.getElementById('ct');if(!t)return;document.getElementById('cgm').style.display=t.value==='monthly'?'':'none';document.getElementById('cgs').style.display=t.value==='monthly'?'none':'';}
+let  = function(id){let c=D.c.find(function(x){return x.id===id});if(!c)return;
+let opts=D.s.map(function(s){return '<option value="'+s.id+'"'+(s.id===c.studentId?' selected':'')+'>'+E(s.name)+' ('+E(s.phone)+')</option>'}).join('');
+om('Edit Course','<div class=fg><label>Student</label><select id=cs>'+opts+'</select></div><div class=fg><label>Status</label><select id=cst><option value=active'+(c.status==='active'?' selected':'')+'>Active</option><option value=paused'+(c.status==='paused'?' selected':'')+'>Paused</option><option value=expired'+(c.status==='expired'?' selected':'')+'>Expired</option></select></div><div class=fg><label>Price</label><input id=cp type=number value="'+(c.price||0)+'"></div>',async function(){
+let r=await fetch(API+'/courses/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({studentId:document.getElementById('cs').value,status:document.getElementById('cst').value,price:Number(document.getElementById('cp').value)||0})});
+if(r.ok){await ld();rr();tx('Updated');}else{tx('Failed');}
+});}
+async function dc(id){if(!confirm('Delete?'))return;let r=await fetch(API+'/courses/'+id,{method:'DELETE'});if(r.ok){await ld();rr();tx('Deleted');}else{tx('Failed');}}
+let  = function(){
+let m=document.getElementById('m'),h='<div class=card><h3>Check-ins</h3>';
+if(D.k.length===0)h+='<div class=empty>None</div>';
+else{let sorted=D.k.slice().sort(function(a,b){return (b.createTime||b.date||'').localeCompare(a.createTime||a.date||'')});
+h+='<table><tr><th>Student</th><th>Date</th><th>Time</th><th>Type</th><th></th></tr>';
+sorted.forEach(function(k){let s=gs(k.studentId);
+h+='<tr><td><b>'+E(s.name)+'</b></td><td>'+fd(k.date||k.checkinDate)+'</td><td>'+(k.time||k.checkinTime||'-')+'</td>';
+h+='<td><span class=tag '+(k.type==='session'||k.courseType==='session'?'ts':'tm')+'>'+(k.type==='session'||k.courseType==='session'?'Session':'Monthly')+'</span></td>';
+h+='<td><button class=btn bd bs onclick="dk(\''+k.id+'\')">Undo</button></td></tr>';});
+h+='</table>';}
+h+='</div>';m.innerHTML=h;}
+async function dk(id){if(!confirm('Undo?'))return;let k=D.k.find(function(x){return x.id===id});
+let r=await fetch(API+'/checkins/'+id,{method:'DELETE'});
+if(r.ok){if(k&&(k.type==='session'||k.courseType==='session')&&k.courseId){let c=D.c.find(function(x){return x.id===k.courseId});if(c)fetch(API+'/courses/'+c.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({rem:(c.rem||0)+1})});}
+await ld();rr();tx('Undone');}else{tx('Failed');}}
+let  = function(){
+let m=document.getElementById('m');
+let act=D.p.filter(function(p){return p.status==='active'});
+let hist=D.p.filter(function(p){return p.status!=='active'});
+let h='<div class=card><h3>Active Pauses ('+act.length+')</h3>';
+if(act.length===0)h+='<div class=empty>None</div>';
+else{h+='<table><tr><th>Student</th><th>Date</th><th>Type</th><th>Reason</th><th></th></tr>';
+act.forEach(function(p){let s=gs(p.studentId);
+h+='<tr><td><b>'+E(s.name)+'</b></td><td>'+fd(p.date||p.pauseDate)+'</td><td>'+(p.type==='monthly'?'Monthly':'Session')+'</td><td>'+E(p.reason||'-')+'</td>';
+h+='<td><button class=btn bo bs onclick="rp(\''+p.id+'\')">Resume</button></td></tr>';});
+h+='</table>';}h+='</div>';
+if(hist.length>0){h+='<div class=card><h3>History</h3><table><tr><th>Student</th><th>Date</th><th>Reason</th></tr>';
+hist.slice(0,20).forEach(function(p){let s=gs(p.studentId);
+h+='<tr><td><b>'+E(s.name)+'</b></td><td>'+fd(p.date||p.pauseDate)+'</td><td>'+E(p.reason||'-')+'</td></tr>';});
+h+='</table></div>';}
+if(D.p.length===0)h+='<div class=empty>None</div>';
+m.innerHTML=h;}
+async function rp(id){if(!confirm('Resume?'))return;let p=D.p.find(function(x){return x.id===id});if(!p)return;
+let r=await fetch(API+'/pauses/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'done'})});
+if(r.ok){if(p.courseId||p.cid){let cid=p.courseId||p.cid;fetch(API+'/courses/'+cid,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'active'})});}
+await ld();rr();tx('Resumed');}else{tx('Failed');}}
+(async function(){await ld();rr();})();
+
+</script></body></html>

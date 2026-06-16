@@ -1,0 +1,6 @@
+.login-page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60rpx;background:#f5f6f8}
+.login-logo{font-size:48rpx;font-weight:800;color:#FF6B35;margin-bottom:12rpx}
+.login-sub{font-size:24rpx;color:#999;margin-bottom:48rpx}
+.form-input{width:100%;padding:24rpx;background:#fff;border-radius:12rpx;font-size:30rpx;text-align:center;box-sizing:border-box}
+.login-btn{width:100%;background:#FF6B35;color:#fff;border-radius:12rpx;padding:24rpx;font-size:32rpx;font-weight:600;margin-top:40rpx;text-align:center}
+.admin-link{margin-top:60rpx;font-size:24rpx;color:#ccc}
