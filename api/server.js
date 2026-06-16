@@ -12,11 +12,11 @@ async function getStore() {
   try {
     var mod = await import("@upstash/redis");
     var Redis = mod.Redis;
-    var redis = new Redis({connectTimeout: 5000,retry:{retries:0},
+    var redis = new Redis({retry:{retries:0},
       url: process.env.UPSTASH_REDIS_URL || process.env.KV_URL || "",
       token: process.env.UPSTASH_REDIS_TOKEN || process.env.KV_REST_API_TOKEN || ""
     });
-    await redis.ping();
+    await Promise.race([redis.ping(), new Promise(function(_,r){setTimeout(function(){r(new Error("redis_timeout"))},4000)})]);
     _store = {
       get: async function(key) { var d = await redis.get(key); return d || { students: [], courses: [], checkins: [], pauses: [] }; },
       set: async function(key, val) { await redis.set(key, JSON.parse(JSON.stringify(val))); return true; }
