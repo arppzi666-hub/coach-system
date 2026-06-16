@@ -1,4 +1,4 @@
-﻿// Vercel serverless function - handles API + static files
+// Vercel serverless function - handles API + static files
 const http = require("http");
 const fs = require("fs");
 const path = require("path");

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Coach Admin</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#FF6B35;--primary-light:#fff0e8;--bg:#f5f6fa;--card:#fff;--text:#2d3436;--text2:#636e72;--border:#eee;--shadow:0 2px 12px rgba(0,0,0,.06);--radius:12px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;display:flex;min-height:100vh}
+.sidebar{width:220px;background:linear-gradient(180deg,#1a1a2e,#16213e);color:#fff;padding:24px 0;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:10}
+.sidebar .logo{padding:0 20px 24px;font-size:20px;font-weight:800;letter-spacing:.5px}
+.sidebar .logo span{color:var(--primary)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:12px 20px;cursor:pointer;font-size:14px;color:#a0aec0;transition:all .2s;border-left:3px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav-item.active{background:rgba(255,107,53,.15);color:#fff;border-left-color:var(--primary)}
+.nav-item .icon{width:20px;text-align:center;font-size:16px}
+.sidebar .footer{padding:20px;margin-top:auto;font-size:11px;color:#666;border-top:1px solid rgba(255,255,255,.06)}
+.main-wrap{margin-left:220px;flex:1;padding:0}
+.topbar{background:var(--card);padding:16px 28px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow);position:sticky;top:0;z-index:5}
+.topbar h1{font-size:18px;font-weight:700}
+.topbar .actions{display:flex;gap:8px;align-items:center}
+.content{padding:24px 28px;max-width:1200px}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);display:flex;align-items:center;gap:16px;transition:transform .2s}
+.stat-card:hover{transform:translateY(-2px)}
+.stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.stat-icon.s1{background:#fff0e8;color:var(--primary)}
+.stat-icon.s2{background:#e8f4ff;color:#3b82f6}
+.stat-icon.s3{background:#e8ffe8;color:#07c160}
+.stat-icon.s4{background:#fff8e8;color:#e6a817}
+.stat-icon.s5{background:#ffe8f4;color:#e8356b}
+.stat-val{font-size:26px;font-weight:800;color:var(--text)}
+.stat-lbl{font-size:12px;color:var(--text2);margin-top:2px}
+.card{background:var(--card);border-radius:var(--radius);padding:24px;margin-bottom:20px;box-shadow:var(--shadow)}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.card-header h2{font-size:16px;font-weight:700}
+.card-header .sub{font-size:12px;color:var(--text2)}
+table{width:100%;border-collapse:collapse}
+td,th{padding:12px 14px;text-align:left;font-size:13px}
+th{color:var(--text2);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border)}
+td{border-bottom:1px solid var(--border)}
+tr:hover td{background:#fafafa}
+.tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.tag-monthly{background:#fff0e8;color:var(--primary)}
+.tag-session{background:#e8f4ff;color:#3b82f6}
+.tag-active{background:#e8ffe8;color:#07c160}
+.tag-paused{background:#fff8e8;color:#e6a817}
+.tag-expired{background:#ffe8e8;color:#fa5151}
+.btn{padding:9px 18px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{filter:brightness(.95);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-outline{background:#fff;color:var(--primary);border:2px solid var(--primary)}
+.btn-danger{background:#ff4d4f;color:#fff}
+.btn-sm{padding:5px 12px;font-size:11px;border-radius:6px}
+.btn-icon{width:32px;height:32px;padding:0;justify-content:center;border-radius:8px}
+.search-box{display:flex;gap:8px;align-items:center}
+.search-box input{padding:8px 14px;border:2px solid var(--border);border-radius:8px;font-size:13px;width:200px;outline:none;transition:border .2s}
+.search-box input:focus{border-color:var(--primary)}
+.empty{text-align:center;padding:50px 20px;color:#bbb}
+.empty .icon{font-size:48px;margin-bottom:12px}
+.empty p{font-size:14px}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);display:none;justify-content:center;align-items:center;z-index:999}
+.modal{background:#fff;border-radius:16px;padding:28px;width:92%;max-width:480px;max-height:85vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)translateY(10px)}to{opacity:1;transform:scale(1)translateY(0)}}
+.modal h3{font-size:18px;margin-bottom:20px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;font-weight:700;margin-bottom:4px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group select{width:100%;padding:10px 14px;border:2px solid var(--border);border-radius:8px;font-size:14px;outline:none;transition:border .2s}
+.form-group input:focus,.form-group select:focus{border-color:var(--primary)}
+.form-row{display:flex;gap:12px}
+.form-row .form-group{flex:1}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 28px;border-radius:24px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.toast.show{opacity:1}
+.phone-link{color:var(--primary);text-decoration:none;font-weight:600}
+.phone-link:hover{text-decoration:underline}
+@media(max-width:768px){.sidebar{width:60px;padding:16px 0}.sidebar .logo{font-size:14px;padding:0 10px 16px;text-align:center}.nav-item{justify-content:center;padding:14px 0;font-size:0}.nav-item .icon{font-size:20px}.main-wrap{margin-left:60px}.content{padding:16px}.stats-row{grid-template-columns:repeat(2,1fr)}}
+
+</style>
+</head>
+<body>
+<nav class="sidebar"><div class="logo">??? <span>Coach</span>Admin</div><div class="nav-item active" data-tab="0"><span class="icon">??</span>???</div><div class="nav-item" data-tab="1"><span class="icon">??</span>????</div><div class="nav-item" data-tab="2"><span class="icon">??</span>????</div><div class="nav-item" data-tab="3"><span class="icon">?</span>????</div><div class="nav-item" data-tab="4"><span class="icon">??</span>????</div><div class="footer">v1.0 ? ??????</div></nav><div class="main-wrap"><div class="topbar"><h1 id="pageTitle">?? ???</h1><div class="actions"><button class="btn btn-outline btn-sm" id="btnRefresh">?? ??</button></div></div><div class="content" id="mainContent"></div></div><div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalContent"></div></div><div class="toast" id="toast"></div>
+<script>
+(function(){
+var API="http://localhost:3000/api",T=0,D={s:[],c:[],k:[],p:[]},cb=null;
+function E(s){if(!s)return"";s=String(s);return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function F(d){if(!d)return"-";var t=new Date(d);return t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0")}
+function GS(id){return D.s.find(function(s){return s.id===id||s.phone===id})||{name:"?",phone:"?"}}
+function TX(m){var e=document.getElementById("toast");e.textContent=m;e.classList.add("show");setTimeout(function(){e.classList.remove("show")},2200)}
+async function LD(){try{var r=await fetch(API+"/students");var d=await r.json();if(Array.isArray(d))D.s=d}catch(e){}
+try{var r=await fetch(API+"/courses");var d=await r.json();if(Array.isArray(d))D.c=d}catch(e){}
+try{var r=await fetch(API+"/checkins");var d=await r.json();if(Array.isArray(d))D.k=d}catch(e){}
+try{var r=await fetch(API+"/pauses");var d=await r.json();if(Array.isArray(d))D.p=d}catch(e){}}
+function CM(){document.getElementById("modalOverlay").style.display="none";cb=null}
+function OM(t,b,ok){document.getElementById("modalOverlay").style.display="flex";document.getElementById("modalContent").innerHTML="<h3>"+t+"</h3>"+b+'<div class="modal-actions"><button class="btn btn-outline" id="btnCancel">??</button><button class="btn btn-primary" id="btnOk">??</button></div>';if(ok)cb=ok}
+function ST(n){T=n;var ns=document.querySelectorAll(".nav-item");for(var i=0;i<ns.length;i++)ns[i].classList.toggle("active",i===n);var titles=["?? ???","?? ????","?? ????","? ????","?? ????"];document.getElementById("pageTitle").textContent=titles[n];R()}
+function R(){if(T===0)R0();else if(T===1)R1();else if(T===2)R2();else if(T===3)R3();else R4()}
+function R0(){var m=document.getElementById("mainContent");var ac=D.c.filter(function(c){return c.status==="active"});var mc=ac.filter(function(c){return c.type==="monthly"}).length;var sc=ac.filter(function(c){return c.type==="session"}).length;var rev=D.c.reduce(function(t,c){return t+(c.price||0)},0);var td=(new Date()).toISOString().slice(0,10);var tdy=D.k.filter(function(k){return(k.date||k.checkinDate)===td}).length;var ps=D.p.filter(function(p){return p.status==="active"}).length;
+m.innerHTML='<div class="stats-row"><div class="stat-card"><div class="stat-icon s1">??</div><div><div class="stat-val">'+D.s.length+'</div><div class="stat-lbl">????</div></div></div><div class="stat-card"><div class="stat-icon s2">??</div><div><div class="stat-val">?'+rev+'</div><div class="stat-lbl">???</div></div></div><div class="stat-card"><div class="stat-icon s3">??</div><div><div class="stat-val">'+mc+'/'+sc+'</div><div class="stat-lbl">??/??</div></div></div><div class="stat-card"><div class="stat-icon s4">?</div><div><div class="stat-val">'+tdy+'</div><div class="stat-lbl">????</div></div></div><div class="stat-card"><div class="stat-icon s5">??</div><div><div class="stat-val">'+ps+'</div><div class="stat-lbl">???</div></div></div>';
+var h='<div class="card"><div class="card-header"><h2>?? ????</h2><div class="sub">'+D.s.length+' ?</div></div>';if(D.s.length===0)h+='<div class="empty"><div class="icon">??</div><p>????</p></div>';else{h+='<table><tr><th>??</th><th>???</th><th>???</th></tr>';D.s.forEach(function(s){var n=D.c.filter(function(c){return c.studentId===s.id}).length;h+='<tr><td><b>'+E(s.name)+'</b></td><td><a class="phone-link" href="tel:'+E(s.phone)+'">'+E(s.phone)+'</a></td><td>'+n+'</td></tr>'});h+='</table>'}h+='</div>';
+var rc=D.k.slice().sort(function(a,b){return(b.createTime||b.date||"").localeCompare(a.createTime||a.date||"")}).slice(0,8);h+='<div class="card"><div class="card-header"><h2>?? ????</h2></div>';if(rc.length===0)h+='<div class="empty"><p>??????</p></div>';else{h+='<table><tr><th>??</th><th>??</th><th>??</th></tr>';rc.forEach(function(k){var s=GS(k.studentId);var isS=k.type==="session"||k.courseType==="session";h+='<tr><td><b>'+E(s.name)+'</b></td><td>'+F(k.date||k.checkinDate)+'</td><td><span class="tag '+(isS?"tag-session":"tag-monthly")+'">'+(isS?"??":"??")+'</span></td></tr>'});h+='</table>'}h+='</div>';m.innerHTML+=h}
+function R1(){var m=document.getElementById("mainContent");var h='<div class="card"><div class="card-header"><h2>?? ????</h2><div class="search-box"><input placeholder="?? ????/??..." id="searchStudent"><button class="btn btn-primary btn-sm" id="btnAddStudent">+ ????</button></div></div>';if(D.s.length===0)h+='<div class="empty"><div class="icon">??</div><p>?????????????</p></div>';else{h+='<table><tr><th>??</th><th>???</th><th>??</th><th>??</th><th>??</th></tr>';D.s.forEach(function(s){var n=D.c.filter(function(c){return c.studentId===s.id}).length;h+='<tr><td><b>'+E(s.name)+'</b></td><td>'+E(s.phone)+'</td><td>'+E(s.note||"-")+'</td><td>'+n+'</td><td><button class="btn btn-outline btn-sm" data-edit-student="'+s.id+'">??</button> <button class="btn btn-danger btn-sm" data-del-student="'+s.id+'">??</button></td></tr>'});h+='</table>'}h+='</div>';m.innerHTML=h}
+function R2(){var m=document.getElementById("mainContent");var h='<div class="card"><div class="card-header"><h2>?? ????</h2><button class="btn btn-primary btn-sm" id="btnAddCourse">+ ????</button></div>';if(D.c.length===0)h+='<div class="empty"><div class="icon">??</div><p>????</p></div>';else{h+='<table><tr><th>??</th><th>??</th><th>??</th><th>??</th><th>??</th><th>??</th></tr>';D.c.forEach(function(c){var s=GS(c.studentId);var isM=c.type==="monthly";var statusTag=c.status==="active"?"tag-active":c.status==="paused"?"tag-paused":"tag-expired";var statusLabel=c.status==="active"?"???":c.status==="paused"?"???":"???";h+='<tr><td><b>'+E(s.name)+'</b></td><td><span class="tag '+(isM?"tag-monthly":"tag-session")+'">'+(isM?"??":"??")+'</span></td><td><span class="tag '+statusTag+'">'+statusLabel+'</span></td><td>?'+(c.price||0)+'</td><td>'+(isM?(c.totalDays||30)+"?":(c.rem!==undefined?c.rem:c.total||10)+"/"+(c.total||10)+"?")+'</td><td><button class="btn btn-outline btn-sm" data-edit-course="'+c.id+'">??</button> <button class="btn btn-danger btn-sm" data-del-course="'+c.id+'">??</button></td></tr>'});h+='</table>'}h+='</div>';m.innerHTML=h}
+function R3(){var m=document.getElementById("mainContent");var h='<div class="card"><div class="card-header"><h2>? ????</h2><div class="sub">? '+D.k.length+' ?</div></div>';if(D.k.length===0)h+='<div class="empty"><div class="icon">?</div><p>??????<br><small>??????????????</small></p></div>';else{var sorted=D.k.slice().sort(function(a,b){return(b.createTime||b.date||"").localeCompare(a.createTime||a.date||"")});h+='<table><tr><th>??</th><th>??</th><th>??</th><th>??</th><th>??</th></tr>';sorted.forEach(function(k){var s=GS(k.studentId);var isS=k.type==="session"||k.courseType==="session";h+='<tr><td><b>'+E(s.name)+'</b></td><td>'+F(k.date||k.checkinDate)+'</td><td>'+(k.time||k.checkinTime||"-")+'</td><td><span class="tag '+(isS?"tag-session":"tag-monthly")+'">'+(isS?"??":"??")+'</span></td><td><button class="btn btn-danger btn-sm" data-undo-checkin="'+k.id+'">??</button></td></tr>'});h+='</table>'}h+='</div>';m.innerHTML=h}
+function R4(){var m=document.getElementById("mainContent");var act=D.p.filter(function(p){return p.status==="active"});var hist=D.p.filter(function(p){return p.status!=="active"});var h='<div class="card"><div class="card-header"><h2>?? ??????</h2><div class="sub">'+act.length+' ?</div></div>';if(act.length===0)h+='<div class="empty"><p>????????</p></div>';else{h+='<table><tr><th>??</th><th>??</th><th>??</th><th>??</th><th>??</th></tr>';act.forEach(function(p){var s=GS(p.studentId);h+='<tr><td><b>'+E(s.name)+'</b></td><td>'+F(p.date||p.pauseDate)+'</td><td>'+(p.type==="monthly"?"??":"??")+'</td><td>'+E(p.reason||"-")+'</td><td><button class="btn btn-outline btn-sm" data-resume-pause="'+p.id+'">??</button></td></tr>'});h+='</table>'}h+='</div>';if(hist.length>0){h+='<div class="card"><div class="card-header"><h2>?? ????</h2></div><table><tr><th>??</th><th>??</th><th>??</th></tr>';hist.slice(0,20).forEach(function(p){var s=GS(p.studentId);h+='<tr><td><b>'+E(s.name)+'</b></td><td>'+F(p.date||p.pauseDate)+'</td><td>'+E(p.reason||"-")+'</td></tr>'});h+='</table></div>'}m.innerHTML=h}
+async function addStudent(){OM("????",'<div class="form-group"><label>?? *</label><input id="sn" placeholder="?????"></div><div class="form-row"><div class="form-group"><label>??? *</label><input id="sp" placeholder="11????"></div><div class="form-group"><label>??</label><input id="st" placeholder="??"></div></div>',async function(){var n=document.getElementById("sn").value.trim(),p=document.getElementById("sp").value.trim();if(!n||!p){TX("?????????");return}var r=await fetch(API+"/students",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n,phone:p,note:document.getElementById("st").value.trim()})});if(r.ok){await LD();R();TX("????")}else{TX("????")}})}
+async function editStudent(id){var s=D.s.find(function(x){return x.id===id});if(!s)return;OM("????",'<div class="form-group"><label>??</label><input id="sn" value="'+E(s.name)+'"></div><div class="form-group"><label>???</label><input id="sp" value="'+E(s.phone)+'"></div><div class="form-group"><label>??</label><input id="st" value="'+E(s.note||"")+'"></div>',async function(){var n=document.getElementById("sn").value.trim(),p=document.getElementById("sp").value.trim();if(!n||!p)return;var r=await fetch(API+"/students/"+id,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n,phone:p,note:document.getElementById("st").value.trim()})});if(r.ok){await LD();R();TX("????")}else{TX("????")}})}
+async function delStudent(id){if(!confirm("????????"))return;var r=await fetch(API+"/students/"+id,{method:"DELETE"});if(r.ok){await LD();R();TX("???")}else{TX("????")}}
+function addCourse(){var opts=D.s.map(function(s){return '<option value="'+s.id+'">'+E(s.name)+' ('+E(s.phone)+')</option>'}).join("");OM("????",'<div class="form-group"><label>??</label><select id="cs">'+opts+'</select></div><div class="form-row"><div class="form-group"><label>??</label><select id="ct"><option value="monthly">??</option><option value="session">??</option></select></div><div class="form-group"><label>?? ?</label><input id="cp" type="number" value="0"></div></div><div class="form-row"><div class="form-group"><label>????</label><input id="cdr" type="date" value="'+new Date().toISOString().slice(0,10)+'"></div><div id="cgm" class="form-group"><label>??</label><input id="cdy" type="number" value="30"></div><div id="cgs" class="form-group" style="display:none"><label>??</label><input id="csn" type="number" value="10"></div></div>',async function(){var type=document.getElementById("ct").value;var d={studentId:document.getElementById("cs").value,type:type,status:"active",price:Number(document.getElementById("cp").value)||0,startDate:document.getElementById("cdr").value};if(type==="monthly"){var days=Number(document.getElementById("cdy").value)||30;d.totalDays=days;var end=new Date(d.startDate);end.setDate(end.getDate()+days);d.endDate=end.toISOString().slice(0,10)}else{var total=Number(document.getElementById("csn").value)||10;d.total=total;d.rem=total}var r=await fetch(API+"/courses",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)});if(r.ok){await LD();R();TX("????")}else{TX("????")}});setTimeout(function(){var ctEl=document.getElementById("ct");if(ctEl)ctEl.addEventListener("change",function(){document.getElementById("cgm").style.display=ctEl.value==="monthly"?"":"none";document.getElementById("cgs").style.display=ctEl.value==="monthly"?"none":""})},50)}
+function editCourse(id){var c=D.c.find(function(x){return x.id===id});if(!c)return;var opts=D.s.map(function(s){return '<option value="'+s.id+'"'+(s.id===c.studentId?" selected":"")+'>'+E(s.name)+' ('+E(s.phone)+')</option>'}).join("");OM("????",'<div class="form-group"><label>??</label><select id="cs">'+opts+'</select></div><div class="form-row"><div class="form-group"><label>??</label><select id="cst"><option value="active"'+(c.status==="active"?" selected":"")+'>???</option><option value="paused"'+(c.status==="paused"?" selected":"")+'>???</option><option value="expired"'+(c.status==="expired"?" selected":"")+'>???</option></select></div><div class="form-group"><label>?? ?</label><input id="cp" type="number" value="'+(c.price||0)+'"></div></div>',async function(){var r=await fetch(API+"/courses/"+id,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({studentId:document.getElementById("cs").value,status:document.getElementById("cst").value,price:Number(document.getElementById("cp").value)||0})});if(r.ok){await LD();R();TX("????")}else{TX("????")}})}
+async function delCourse(id){if(!confirm("????????"))return;var r=await fetch(API+"/courses/"+id,{method:"DELETE"});if(r.ok){await LD();R();TX("???")}else{TX("????")}}
+async function undoCheckin(id){if(!confirm("????????"))return;var k=D.k.find(function(x){return x.id===id});var r=await fetch(API+"/checkins/"+id,{method:"DELETE"});if(r.ok){if(k&&(k.type==="session"||k.courseType==="session")&&(k.courseId||k.cid)){var cid=k.courseId||k.cid;var c=D.c.find(function(x){return x.id===cid});if(c)await fetch(API+"/courses/"+c.id,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({rem:(c.rem||0)+1})})}await LD();R();TX("???")}else{TX("????")}}
+async function resumePause(id){if(!confirm("????????"))return;var p=D.p.find(function(x){return x.id===id});if(!p)return;var r=await fetch(API+"/pauses/"+id,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({status:"done"})});if(r.ok){if(p.courseId||p.cid){var cid=p.courseId||p.cid;await fetch(API+"/courses/"+cid,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({status:"active"})})}await LD();R();TX("???")}else{TX("????")}}
+document.addEventListener("click",function(e){var el=e.target;if(el.id==="btnCancel"){CM();return}if(el.id==="btnOk"){if(cb)cb();CM();return}if(el.id==="modalOverlay"&&e.target===el){CM();return}if(el.id==="btnRefresh"||el.closest("#btnRefresh")){LD().then(R);TX("???");return}var nav=el.closest(".nav-item");if(nav){ST(Number(nav.dataset.tab));return}if(el.id==="btnAddStudent"||el.closest("#btnAddStudent")){addStudent();return}var sid=el.dataset.editStudent||(el.closest("[data-edit-student]")||{}).dataset.editStudent;if(sid){editStudent(sid);return}var sd=el.dataset.delStudent||(el.closest("[data-del-student]")||{}).dataset.delStudent;if(sd){delStudent(sd);return}if(el.id==="btnAddCourse"||el.closest("#btnAddCourse")){addCourse();return}var cid=el.dataset.editCourse||(el.closest("[data-edit-course]")||{}).dataset.editCourse;if(cid){editCourse(cid);return}var cd=el.dataset.delCourse||(el.closest("[data-del-course]")||{}).dataset.delCourse;if(cd){delCourse(cd);return}var uid=el.dataset.undoCheckin||(el.closest("[data-undo-checkin]")||{}).dataset.undoCheckin;if(uid){undoCheckin(uid);return}var pid=el.dataset.resumePause||(el.closest("[data-resume-pause]")||{}).dataset.resumePause;if(pid){resumePause(pid);return}});
+document.addEventListener("input",function(e){var el=e.target;if(el.id==="searchStudent"){var q=el.value.toLowerCase();document.querySelectorAll("table tr").forEach(function(r){if(r.querySelector("th"))return;var t=r.textContent.toLowerCase();r.style.display=t.includes(q)?"":"none"})}});
+LD().then(function(){R()});
+})();
+</script>
+</body>
+</html>
