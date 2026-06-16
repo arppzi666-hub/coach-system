@@ -9,3 +9,5 @@ _build_admin.js
 _tmp.txt
 .DS_Store
 Thumbs.db
+
+project.private.config.json
