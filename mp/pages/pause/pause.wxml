@@ -1,4 +1,4 @@
-﻿<view class="page-pause">
+<view class="page-pause">
   <view class="card">
     <view class="card-title">课程暂停</view>
     <view class="card-tip">月卡每月最多2次。次卡可暂停1次。暂停期间不消耗。</view>
