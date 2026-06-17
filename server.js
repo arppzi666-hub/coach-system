@@ -3,6 +3,40 @@ const fs = require("fs");
 const path = require("path");
 const PORT = 3000;
 const DATA_FILE = process.env.VERCEL ? "/tmp/data.json" : path.join(__dirname, "data.json");
+
+// === Upstash sync (Vercel only, fire-and-forget) ===
+var _upstashUrl = process.env.UPSTASH_REDIS_KV_REST_API_URL || "";
+var _upstashToken = process.env.UPSTASH_REDIS_KV_REST_API_TOKEN || "";
+if (_upstashUrl && _upstashToken) {
+  var _us = new URL(_upstashUrl);
+  // Pre-load on cold start: try to restore /tmp from Upstash
+  var _req = require("https").request({
+    hostname: _us.hostname, path: "/get/coach_data?no_parse=true", method: "GET",
+    headers: { "Authorization": "Bearer " + _upstashToken }
+  }, function(_res) {
+    var _d = ""; _res.on("data", function(c) { _d += c; });
+    _res.on("end", function() {
+      try { var _j = JSON.parse(_d); if (_j.result) { var _parsed = JSON.parse(_j.result); if (_parsed && _parsed.students) { fs.writeFileSync(DATA_FILE, JSON.stringify(_parsed), "utf-8"); console.log("Upstash restored:", _parsed.students.length, "students"); } } } catch(e) {}
+    });
+  });
+  _req.on("error", function() {});
+  _req.setTimeout(5000, function() { _req.destroy(); });
+  _req.end();
+}
+
+function _syncUpstash(d) {
+  if (!_upstashUrl) return;
+  try {
+    var _r = require("https").request({
+      hostname: _us.hostname, path: "/set/coach_data", method: "POST",
+      headers: { "Authorization": "Bearer " + _upstashToken, "Content-Type": "application/json" }
+    }, function() {});
+    _r.on("error", function() {});
+    _r.setTimeout(5000, function() { _r.destroy(); });
+    _r.write(JSON.stringify(d)); _r.end();
+  } catch(e) {}
+}
+
 const ADMIN_DIR = path.join(__dirname, "admin");
 
 function loadData() {
@@ -11,7 +45,7 @@ function loadData() {
   return { students: [], courses: [], checkins: [], pauses: [] };
 }
 function saveData(d) {
-  try { fs.writeFileSync(DATA_FILE, JSON.stringify(d, null, 2), "utf-8"); return true; }
+  try { fs.writeFileSync(DATA_FILE, JSON.stringify(d, null, 2), "utf-8"); _syncUpstash(d); return true; }
   catch (e) { console.error("Save error:", e.message); return false; }
 }
 function parseBody(req) {
