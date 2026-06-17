@@ -1,18 +1,82 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+// ============ Upstash persistent storage ============
+var UPSTASH_URL = process.env.UPSTASH_REDIS_KV_REST_API_URL || "";
+var UPSTASH_TOKEN = process.env.UPSTASH_REDIS_KV_REST_API_TOKEN || "";
+
+function upstashGet(key) {
+  return new Promise(function(resolve, reject) {
+    if (!UPSTASH_URL || !UPSTASH_TOKEN) return reject(new Error("no_upstash"));
+    var u = new URL(UPSTASH_URL);
+    var opts = {
+      hostname: u.hostname, port: 443, path: "/get/" + key, method: "GET",
+      headers: { "Authorization": "Bearer " + UPSTASH_TOKEN }
+    };
+    var req = require("https").request(opts, function(resp) {
+      var d = ""; resp.on("data", function(c) { d += c; });
+      resp.on("end", function() {
+        try { var j = JSON.parse(d); resolve(j.result ? JSON.parse(j.result) : null); }
+        catch(e) { resolve(null); }
+      });
+    });
+    req.on("error", function(e) { reject(e); });
+    req.setTimeout(5000, function() { req.destroy(); reject(new Error("timeout")); });
+    req.end();
+  });
+}
+
+function upstashSet(key, val) {
+  return new Promise(function(resolve, reject) {
+    if (!UPSTASH_URL || !UPSTASH_TOKEN) return reject(new Error("no_upstash"));
+    var u = new URL(UPSTASH_URL);
+    var body = JSON.stringify(val);
+    var opts = {
+      hostname: u.hostname, port: 443, path: "/set/" + key, method: "POST",
+      headers: { "Authorization": "Bearer " + UPSTASH_TOKEN, "Content-Type": "application/json" }
+    };
+    var req = require("https").request(opts, function(resp) {
+      var d = ""; resp.on("data", function(c) { d += c; });
+      resp.on("end", function() { resolve(true); });
+    });
+    req.on("error", function(e) { reject(e); });
+    req.setTimeout(5000, function() { req.destroy(); reject(new Error("timeout")); });
+    req.write(body); req.end();
+  });
+}
+
 const PORT = 3000;
-const DATA_FILE = "/tmp/data.json";
+const DATA_FILE = process.env.VERCEL ? "/tmp/data.json" : path.join(__dirname, "data.json");
 const ADMIN_DIR = path.join(__dirname, "admin");
 
-function loadData() {
-  try { if (fs.existsSync(DATA_FILE)) return JSON.parse(fs.readFileSync(DATA_FILE, "utf-8")); }
-  catch (e) { console.error("Load error:", e.message); }
-  return { students: [], courses: [], checkins: [], pauses: [] };
+var _cache = null;
+async function loadData() {
+  if (_cache) return _cache;
+  // 1) Try Upstash
+  try {
+    var d = await upstashGet("coach_data");
+    if (d && d.students) { _cache = d; console.log("Loaded from Upstash:", d.students.length, "students"); return d; }
+  } catch(e) { console.log("Upstash load failed:", e.message); }
+  // 2) Try local file
+  try {
+    if (fs.existsSync(DATA_FILE)) {
+      var d = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
+      _cache = d; return d;
+    }
+  } catch (e) { console.error("File load error:", e.message); }
+  // 3) Empty
+  _cache = { students: [], courses: [], checkins: [], pauses: [] };
+  return _cache;
 }
 function saveData(d) {
-  try { fs.writeFileSync(DATA_FILE, JSON.stringify(d, null, 2), "utf-8"); return true; }
-  catch (e) { console.error("Save error:", e.message); return false; }
+  _cache = d;
+  var ok = true;
+  // 1) Save to Upstash
+  upstashSet("coach_data", d).then(function() { console.log("Saved to Upstash"); }).catch(function(e) { console.log("Upstash save failed:", e.message); });
+  // 2) Save to local file
+  try { fs.writeFileSync(DATA_FILE, JSON.stringify(d, null, 2), "utf-8"); }
+  catch (e) { console.error("File save error:", e.message); ok = false; }
+  return ok;
 }
 function parseBody(req) {
   return new Promise(function(resolve) {
