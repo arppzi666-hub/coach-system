@@ -1,2 +1,1 @@
-var lib = require('./_lib.js');
-module.exports = function(req, res) { lib.colAPI(req, res, 'students'); };
+var lib = require('./_lib.js'); module.exports = function(req, res) { lib.handleCol(req, res, 'students'); }; 
