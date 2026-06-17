@@ -1,9 +1,7 @@
 {
   "name": "coach-system",
   "version": "2.0.2",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
-  },
+  "scripts": { "start": "node server.js", "dev": "node server.js" },
+  "engines": { "node": "18.x" },
   "dependencies": {}
 }
