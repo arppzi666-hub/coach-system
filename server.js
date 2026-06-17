@@ -1,4 +1,4 @@
-﻿const http = require("http");
+const http = require("http");
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
@@ -51,7 +51,7 @@ function _syncUpstash(d) {
       method: "POST",
       headers: {
         "Authorization": "Bearer " + _upstashToken,
-        "Content-Type": "application/json",
+        "Content-Type": "application/json; charset=utf-8",
         "Content-Length": Buffer.byteLength(body)
       }
     }, function() {});
@@ -124,9 +124,9 @@ function sendJSON(res, data, code) {
 
 var MIME = {
   ".html": "text/html; charset=utf-8",
-  ".css": "text/css",
-  ".js": "application/javascript",
-  ".json": "application/json"
+  ".css": "text/css; charset=utf-8",
+  ".js": "application/javascript; charset=utf-8",
+  ".json": "application/json; charset=utf-8"
 };
 
 function serveFile(res, filePath) {
