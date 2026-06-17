@@ -58,9 +58,9 @@ Page({
       data: { studentId: s.id, courseId: cid, type: ct, courseType: ct, date: today(), checkinDate: today(), time: new Date().toLocaleTimeString(), checkinTime: new Date().toLocaleTimeString(), createTime: new Date().toISOString() },
       header: { "content-type": "application/json" },
       success: function() {
-        if (!course.isMonthly) {
-          wx.request({ url: API + "/courses/" + cid, method: "PUT", data: { rem: course.remaining - 1 }, header: { "content-type": "application/json" } });
-        }
+        // 月卡和次卡都减rem
+        var newRem = course.remaining - 1;
+        wx.request({ url: API + "/courses/" + cid, method: "PUT", data: { rem: newRem, totalDays: course.isMonthly ? newRem : undefined }, header: { "content-type": "application/json" } });
         wx.showToast({ title: "签到成功", icon: "success" });
         setTimeout(function() { that.onShow(); }, 800);
       },
