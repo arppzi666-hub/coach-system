@@ -1,9 +1,8 @@
 {
   "rewrites": [
-    { "source": "/api/students/(.*)", "destination": "/api/students?id=$1" },
-    { "source": "/api/courses/(.*)", "destination": "/api/courses?id=$1" },
-    { "source": "/api/checkins/(.*)", "destination": "/api/checkins?id=$1" },
-    { "source": "/api/pauses/(.*)", "destination": "/api/pauses?id=$1" },
-    { "source": "/(.*)", "destination": "/api/index" }
-  ]
+    { "source": "/(.*)", "destination": "/server" }
+  ],
+  "functions": {
+    "server.js": { "memory": 512, "maxDuration": 30 }
+  }
 }

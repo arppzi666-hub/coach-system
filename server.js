@@ -2,7 +2,7 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const PORT = 3000;
-const DATA_FILE = path.join(__dirname, "data.json");
+const DATA_FILE = "/tmp/data.json";
 const ADMIN_DIR = path.join(__dirname, "admin");
 
 function loadData() {
