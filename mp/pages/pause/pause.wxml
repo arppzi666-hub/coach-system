@@ -1,12 +1,12 @@
-<view class="page-pause">
+﻿<view class="page-pause">
   <view class="card">
-    <view class="card-title">璇剧▼鏆傚仠</view>
-    <view class="card-tip">鏈堝崱姣忔湀鏈€澶?娆°€傛鍗″彲鏆傚仠1娆°€傛殏鍋滄湡闂翠笉娑堣€椼€?/view>
+    <view class="card-title">课程暂停</view>
+    <view class="card-tip">月卡每月最多2次。次卡可暂停1次。暂停期间不消耗。</view>
     
     <block wx:if="{{courses.length===0}}">
       <view class="empty-state">
-        <view class="empty-icon">馃摥</view>
-        <view>娌℃湁鍙殏鍋滅殑璇剧▼</view>
+        <view class="empty-icon">📥</view>
+        <view>没有可暂停的课程</view>
       </view>
     </block>
     
@@ -17,30 +17,28 @@
             <view class="course-name">{{item.label}}</view>
             <view class="course-meta">{{item.limit}}</view>
           </view>
-          <view class="check-circle {{item.selClass}}">{{item.selected ? "鉁? : "鈼?}}</view>
+          <view class="check-circle {{item.selClass}}">{{item.selected ? "✓" : "○"}}</view>
         </view>
       </view>
       
       <block wx:if="{{selectedCourseId}}">
         <view class="form-gap">
           <view class="form-item">
-            <view class="form-label">鏆傚仠鏃ユ湡</view>
-            <picker mode="date" value="{{pauseDate}}" bindchange="onDateChange">
-              <view class="form-value">{{pauseDate}} 鈻?/view>
-            </picker>
+            <view class="form-label">暂停日期</view>
+            <picker mode="date" value="{{pauseDate}}" bindchange="onDateChange">{{pauseDate}}</picker>
           </view>
           <view class="form-item">
-            <view class="form-label">鍘熷洜(鍙€?</view>
-            <input class="form-input" placeholder="鏈変簨澶栧嚭" value="{{reason}}" bindinput="onReasonInput"/>
+            <view class="form-label">原因(可选)</view>
+            <input class="form-input" placeholder="有事外出" value="{{reason}}" bindinput="onReasonInput"/>
           </view>
-          <button class="primary-btn" bindtap="doPause">纭鏆傚仠</button>
+          <button class="primary-btn" bindtap="doPause">确认暂停</button>
         </view>
       </block>
     </block>
   </view>
   
   <view class="card" wx:if="{{pauses.length>0}}">
-    <view class="card-title">鏆傚仠璁板綍</view>
+    <view class="card-title">暂停记录</view>
     <view class="list-item" wx:for="{{pauses}}" wx:key="id">
       <view class="item-row">
         <view>
@@ -49,7 +47,7 @@
         </view>
         <view class="tag tag-{{item.statusClass}}">{{item.statusLabel}}</view>
       </view>
-      <view class="item-reason" wx:if="{{item.reason}}">鍘熷洜锛歿{item.reason}}</view>
+      <view class="item-reason" wx:if="{{item.reason}}">原因：{{item.reason}}</view>
     </view>
   </view>
 </view>
