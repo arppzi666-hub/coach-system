@@ -1,13 +1,9 @@
 {
   "name": "coach-system",
-  "version": "2.0.1",
-  "description": "Fitness coach management system - Web admin + WeChat Mini Program",
+  "version": "2.0.2",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"
   },
-  "dependencies": {
-    "@vercel/kv": "^3.0.0",
-    "@upstash/redis": "^1.34.0"
-  }
+  "dependencies": {}
 }
